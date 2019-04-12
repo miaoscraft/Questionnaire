@@ -14,6 +14,10 @@ import (
 	"github.com/satori/go.uuid"
 )
 
+//OnPlayer 在正版玩家连接时被调用，其返回值将被作为断开连接的原因被发送给客户端
+//返回值应当为一个JSON Chat值，例如`"msg"`
+var OnPlayer func(name string, UUID uuid.UUID, protocol int32) string
+
 const (
 	//Threshold 指定了数据传输时最小压缩包大小
 	Threshold = 256
@@ -60,7 +64,6 @@ func Handle(conn net.Conn) {
 
 		err = c.login()
 		if err != nil {
-			log.Println(err)
 			msg := chat.NewTranslateMsg("multiplayer.disconnect." + err.Error())
 			jmsg, err := json.Marshal(msg)
 			if err != nil {
@@ -71,13 +74,14 @@ func Handle(conn net.Conn) {
 			return
 		}
 
+		resp := `"error"`
+		if OnPlayer != nil {
+			resp = OnPlayer(c.Name, c.ID, c.ProtocolVersion)
+		}
+
 		packet := pk.Packet{
-			ID: 0x1B,
-			Data: pk.PackString(`
-			{
-				"text":"您的验证码:WHDS"
-			}
-			`),
+			ID:   0x1B,
+			Data: pk.PackString(resp),
 		}
 		c.Write(packet.Pack(c.threshold)) //Ignore error
 		return
