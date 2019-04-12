@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/miaoscraft/SignUpServer/server"
+	"github.com/miaoscraft/Questionnaire/server"
 	"github.com/satori/go.uuid"
 	"log"
 	"net"
