@@ -16,10 +16,18 @@ func init() {
 	server.OnPlayer = Response
 }
 
-func main() {
-	go web.Listen(":1314") //HTTP server
+const (
+	httpAddr = ":1314"
+	mcAddr   = ":25565"
+)
 
-	l, err := net.Listen("tcp", ":25565") //MC server
+func main() {
+	go web.Listen(httpAddr) //HTTP server
+	log.Println("在" + httpAddr + "启动网页服务器")
+
+	l, err := net.Listen("tcp", mcAddr) //MC server
+	log.Println("在" + mcAddr + "启动验证码服务器")
+
 	if err != nil {
 		log.Fatal(err)
 	}
