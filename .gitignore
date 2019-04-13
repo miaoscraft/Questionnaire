@@ -14,3 +14,6 @@
 # For Mac and VScode
 .DS_Store
 .vscode/
+
+# Msc sec
+questionnaire.xml

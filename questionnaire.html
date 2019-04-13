@@ -1,0 +1,61 @@
+<html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<style>
+    body {
+        background: linear-gradient(to bottom right, white, rgb(0, 217, 255));
+        margin: 0px;
+    }
+
+    #paper {
+        background-color: white;
+        min-height: 90%;
+        padding: 0px 5%;
+    }
+
+    @media screen and (min-width: 600px) {
+        #paper {
+            margin: 5px 10%;
+        }
+    }
+
+    @media screen and (max-width: 600px) {
+        #paper {
+            margin: 5px 0px;
+        }
+    }
+
+    h1 {
+        text-align: center;
+        padding-top: 10px;
+        font-size: 2rem;
+        border-bottom: thin solid lightgray;
+    }
+
+    #next_button {
+        margin: auto;
+        display: block;
+    }
+</style>
+
+<body>
+    <div id="paper">
+        <h1>喵喵公馆入群问卷</h1>
+        <form>
+            CODE<input type="text" />
+
+            <h2>单选题</h2>
+            {{ range $QueID, $QueBody := .ChoiceQuestions }}
+            <div class="choice_question">
+                {{ .Question }}<br>
+                {{ range $index, $value := .Options}}
+                <input type="radio" name="{{ $QueID }}" value="{{ $index }}" />{{ $value }}<br>
+                {{ end }}
+            </div>
+            {{ end }}
+            <input id="next_button" type="button" value="Next" />
+        </form>
+    </div>
+</body>
+
+</html>

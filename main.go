@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/miaoscraft/Questionnaire/server"
-	"github.com/satori/go.uuid"
 	"log"
 	"net"
+
+	"github.com/miaoscraft/Questionnaire/server"
+	"github.com/miaoscraft/Questionnaire/web"
+	"github.com/satori/go.uuid"
 )
 
 func init() {
@@ -13,7 +15,9 @@ func init() {
 }
 
 func main() {
-	l, err := net.Listen("tcp", ":25565")
+	go web.Listen(":1314") //HTTP server
+
+	l, err := net.Listen("tcp", ":25565") //MC server
 	if err != nil {
 		log.Fatal(err)
 	}
