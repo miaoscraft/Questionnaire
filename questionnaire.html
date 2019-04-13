@@ -32,28 +32,96 @@
         border-bottom: thin solid lightgray;
     }
 
+    #code_input {
+        border: solid 1px gray;
+        height: 2em;
+        width: 8em;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
     #next_button {
         margin: auto;
         display: block;
     }
+
+    .choice_question {
+        margin: 10px 5px;
+        border-top: solid 1px lightgray;
+    }
+
+    .help {
+        height: 1em;
+        width: 1em;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    [tooltip]::after {
+        display: none;
+        content: attr(tooltip);
+        position: absolute;
+        padding: 8px 15px;
+        max-width: 200px;
+        box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.4);
+        z-index: 100;
+        border-radius: 4px;
+        background-color: #313131;
+        color: lightgray;
+    }
+
+    [tooltip]:hover::after {
+        display: inline;
+    }
 </style>
+
+<script type="text/javascript">
+    function check() {
+        xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", "./check?code=" + document.getElementById("code_input").value)
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                if (xmlhttp.responseText != "")
+                    document.getElementById("code_status").setAttribute("fill", "chartreuse");
+                else
+                    document.getElementById("code_status").setAttribute("fill", "red");
+            }
+        };
+        xmlhttp.send()
+    }
+
+    function submit_form() {
+        var c = document.getElementById("code_status").getAttribute("fill")
+        if (c == "gray")
+            alert("请填写验证码");
+        else if (c == "red")
+            alert("请正确填写验证码");
+        else
+            document.getElementById("form").submit();
+    }
+</script>
 
 <body>
     <div id="paper">
         <h1>喵喵公馆入群问卷</h1>
-        <form>
-            CODE<input type="text" />
-
+        <form action="/submit" method="post" id="form">
             <h2>单选题</h2>
             {{ range $QueID, $QueBody := .ChoiceQuestions }}
             <div class="choice_question">
                 {{ .Question }}<br>
-                {{ range $index, $value := .Options}}
-                <input type="radio" name="{{ $QueID }}" value="{{ $index }}" />{{ $value }}<br>
+                {{ range $index, $opt := .Options}}
+                <input type="radio" name="{{ $QueID }}" value="{{ $index }}" />{{ $opt.Value }}<br>
                 {{ end }}
             </div>
             {{ end }}
-            <input id="next_button" type="button" value="Next" />
+            <input id="code_input" type="text" name="code" placeholder="请输入验证码" onchange="check()"
+                onkeydown='if(event.keyCode==13) return false;' />
+            <div class="help" tooltip="请用Minecraft客户端连接服务器gate.miaoscraft.cn获取验证码">
+                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewbox="0,0,100,100">
+                    <circle id="code_status" cx="50" cy="50" r="40" fill="gray" stroke="black" />
+                </svg>
+            </div>
+            <input id="next_button" type="button" value="Next" onclick="submit_form()" />
         </form>
     </div>
 </body>
