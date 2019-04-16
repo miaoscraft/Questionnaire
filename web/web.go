@@ -18,8 +18,10 @@ func Listen(addr string) {
 	http.ListenAndServe(addr, nil)
 }
 
-var questionnaire = template.Must(template.
-	ParseFiles("questionnaire.html"))
+var (
+	questionnaire = template.Must(template.ParseFiles("questionnaire.html"))
+	outcome       = template.Must(template.ParseFiles("outcome.html"))
+)
 
 func renderQuestionnaire(rw http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -60,14 +62,22 @@ func onSubmit(rw http.ResponseWriter, r *http.Request) {
 			}
 		}
 		log.Printf("%v, %v\n总分:%d", p, r.PostForm, score)
-		if score >= Questions.MinScore {
-			fmt.Fprint(rw, "您成功通过")
-		} else {
-			fmt.Fprint(rw, "您没有通过")
-		}
+
+		outcome.Execute(rw, struct {
+			Pass      bool   //是否通过了测试
+			Player           //玩家信息
+			Score     int    //最终得分
+			Addresser string //落款
+		}{
+			score >= Questions.MinScore,
+			p,
+			score,
+			"Tnze",
+		})
+
 	} else {
 		//验证不通过
-		fmt.Fprint(rw, "验证码错误")
+		fmt.Fprint(rw, "请重新正确填写验证码")
 	}
 
 }
