@@ -78,10 +78,11 @@
         border-radius: 4px;
         background-color: #313131;
         color: lightgray;
+        transform: translate(0, -100%);
     }
 
     [tooltip]:hover::after {
-        display: inline;
+        display: inline-block;
     }
 </style>
 
@@ -114,7 +115,7 @@
 <body>
     <div id="background"></div>
     <div id="paper">
-        <h1>喵喵公馆入群问卷</h1>
+        <h1>喵喵公馆入群问卷<sub>v1.2</sub></h1>
         <form action="/submit" method="post" id="form">
             <h2>单选题</h2>
             {{ range $QueID, $QueBody := .ChoiceQuestions }}
