@@ -21,6 +21,9 @@ var OnPlayer func(name string, UUID uuid.UUID, protocol int32) string
 const (
 	//Threshold 指定了数据传输时最小压缩包大小
 	Threshold = 256
+
+	ServerID   = "joinus.miaoscraft.cn"
+	ServerPort = 25565
 )
 
 //Client 封装了与客户端之间的底层的网络交互
@@ -80,7 +83,7 @@ func Handle(conn net.Conn) {
 		}
 
 		packet := pk.Packet{
-			ID:   0x1B,
+			ID:   disconnectID(c.ProtocolVersion),
 			Data: pk.PackString(resp),
 		}
 		c.Write(packet.Pack(c.threshold)) //Ignore error
@@ -103,15 +106,24 @@ func (c *Client) handshake() (nextState int32, err error) {
 		return -1, fmt.Errorf("parse protol version fail: %v", err)
 	}
 
+	var (
+		sid string
+		spt int16
+	)
 	// ServerID
-	_, err = pk.UnpackString(r)
+	sid, err = pk.UnpackString(r)
 	if err != nil {
 		return -1, fmt.Errorf("parse address fail: %v", err)
 	}
 	// Server Port
-	_, err = pk.UnpackInt16(r)
+	spt, err = pk.UnpackInt16(r)
 	if err != nil {
 		return -1, fmt.Errorf("parse port fail: %v", err)
+	}
+
+	//检查服务器ID和端口是否匹配
+	if sid != ServerID || uint16(spt) != ServerPort {
+		return -1, fmt.Errorf("server address rejected")
 	}
 
 	nextState, err = pk.UnpackVarInt(r)
@@ -145,23 +157,29 @@ func getStatus() pk.Packet {
 		Data: pk.PackString(`
 		{
 			"version": {
-				"name": "1.13.2",
-				"protocol": 404
+				"name": "1.14.1",
+				"protocol": 480
 			},
 			"players": {
 				"max": 1,
 				"online": 0,
-				"sample": [
-					{
-						"name": "Tnze",
-						"id": "58f6356e-b30c-4811-8bfc-d72a9ee99e73"
-					}
-				]
+				"sample": []
 			},	
 			"description": {
 				"text": "喵喵公馆验证码服务器"
 			}
 		}
 		`),
+	}
+}
+
+func disconnectID(protocal int32) byte {
+	switch protocal {
+	case 404:
+		return 0x1B
+	case 477, 480:
+		return 0x1A
+	default:
+		return 0x1A
 	}
 }
