@@ -65,7 +65,7 @@ func onSubmit(rw http.ResponseWriter, r *http.Request) {
 		}
 		log.Printf("%v, %v\n总分:%d", p, r.PostForm, score)
 
-		cqmsg.Msg(fmt.Sprintf("插播消息：刚刚，玩家%s在问卷测试中得分%d分！", p.Name, score))
+		cqmsg.Msg(fmt.Sprintf("插播消息：玩家[%s]在自动化问卷测试中得分%d分", p.Name, score))
 
 		outcome.Execute(rw, struct {
 			Pass      bool   //是否通过了测试
